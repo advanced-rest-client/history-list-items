@@ -114,7 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         'method': chance.pick(isPayload ? payloadMethods : otherMethods),
         'headers': headers,
         'payload': payload,
-        'time': chance.hammertime(),
+        'created': chance.hammertime(),
         'type': isHistory ? 'history' : 'saved'
       };
       if (!isHistory) {
