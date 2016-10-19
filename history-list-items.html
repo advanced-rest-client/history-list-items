@@ -55,6 +55,7 @@ paths each time the new element will be added.
 
 Custom property | Description | Default
 ----------------|-------------|----------
+`--history-list-items-element` | Mixin to be applied to the element itself | `{}`
 `--history-list-items` | Mixin applied to each list item | `{}`
 `--history-list-items-url` | Mixin applied to the URL display element. Note that it is a inline element. | `{}`
 `--history-list-items-method` | Mixin applied to the method display element. Note that it is a inline element. | `{}`
@@ -85,8 +86,8 @@ You can style checkbox with paper-checkbox styles like:
       height: 100vh;
       display: flex;
       flex-direction: column;
-
-      --paper-checkbox-checked-color: #1E88E5;
+      /*--paper-checkbox-checked-color: #1E88E5;*/
+      @apply(--history-list-items-element);
     }
 
     .history-item {
@@ -96,7 +97,7 @@ You can style checkbox with paper-checkbox styles like:
       font-size: 14px;
       height: var(--history-list-items-height, 60px);
       background-color: var(--history-list-items-background-color, transparent);
-      @apply(--history-list-item);
+      @apply(--history-list-items);
     }
 
     .history-item.selected {
