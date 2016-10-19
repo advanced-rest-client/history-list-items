@@ -162,7 +162,7 @@ You can style checkbox with paper-checkbox styles like:
           <div class="group-header" hidden$="[[!item.hasHeader]]">[[item.header]]</div>
           <div class$="[[_computeRowClass(selected)]]" tabindex$="[[tabIndex]]" aria-label$="Select/Deselect [[item.url]]">
             <div class="checkbox-column">
-              <paper-checkbox checked="{{selected}}"></paper-checkbox>
+              <paper-checkbox on-tap="_toggleCheckbox" checked="[[selected]]"></paper-checkbox>
             </div>
             <div class="data-column">
               <div class="url-method-row">
@@ -206,6 +206,16 @@ You can style checkbox with paper-checkbox styles like:
      * It usually means that the app should load more results.
      *
      * @event history-list-threshold
+     */
+    /**
+     * Fired when the selection of an item changed.
+     *
+     * @event history-list-item-selection-changed
+     * @param {Object} item An object associated with this item.
+     * @param {Number} index Object's index in the list.
+     * @param {Boolean} selected True if the item is currently being selected.
+     * This mey not yet be reflected in other object states since this event
+     * is fired while selection is happening.
      */
     properties: {
       // The list of history items to render.
@@ -255,7 +265,13 @@ You can style checkbox with paper-checkbox styles like:
     observers: [
       '_sizeChanged(items.length)'
     ],
-
+    listeners: {
+      'iron-select': '_onSelectItem',
+      'iron-deselect': '_onSelectItem',
+      'iron-activate': '_onSelectItem',
+      'iron-changed': '_onSelectItem',
+      'iron-change': '_onSelectItem'
+    },
     hostAttributes: {
       'role': 'list'
     },
@@ -277,7 +293,7 @@ You can style checkbox with paper-checkbox styles like:
         // day: 'numeric',
         hour: 'numeric',
         minute: 'numeric',
-        second: 'numeric'
+        // second: 'numeric'
       };
       return new Intl.DateTimeFormat(undefined, options).format(d);
     },
@@ -311,7 +327,9 @@ You can style checkbox with paper-checkbox styles like:
     _computeHasSelection: function(length) {
       return !!length;
     },
-
+    _toggleCheckbox: function(e) {
+      this.$.list.toggleSelectionForItem(e.model.index);
+    },
     /**
      * Use this method to add new items to the `items` array.
      * It will prohibit list jumping while changing the list object manually
@@ -323,6 +341,16 @@ You can style checkbox with paper-checkbox styles like:
         return;
       }
       items.forEach((i) => this.push('items', i));
+    },
+
+    _onSelectItem: function(e) {
+      e = Polymer.dom(e);
+      var model = this.$.list.modelForElement(e.rootTarget);
+      this.fire('history-list-item-selection-changed', {
+        item: model.get('item'),
+        index: model.get('index'),
+        selected: this.selectedItems.indexOf(model.get('item')) === -1
+      });
     }
   });
   </script>
