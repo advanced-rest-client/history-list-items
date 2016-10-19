@@ -62,4 +62,7 @@ You can style checkbox with paper-checkbox styles like:
 index **Number** - Object's index in the list. |
 | history-list-item-open | Fired when the user clicked on an open button on an item. | item **Object** - An object associated with this item. |
 index **Number** - Object's index in the list. |
+| history-list-item-selection-changed | Fired when the selection of an item changed. | item **Object** - An object associated with this item. |
+index **Number** - Object's index in the list. |
+selected **Boolean** - True if the item is currently being selected. This mey not yet be reflected in other object states since this event is fired while selection is happening. |
 | history-list-threshold | Fired when the user nearly scrolled to the ened of the list. It usually means that the app should load more results. | __none__ |
