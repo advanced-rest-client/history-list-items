@@ -144,12 +144,29 @@ You can style checkbox with paper-checkbox styles like:
       color: var(--history-list-items-open-color, white);
     }
 
+    .group-header {
+      font-weight: bold;
+      border: 1px solid #ddd;
+      color: #333;
+      margin-top: 20px;
+    }
+    
+    .group-header:before {
+      content: '';
+      border-top: 1px solid #ddd;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
     iron-list {
       flex: 1 1 auto;
     }
     </style>
     <iron-list id="list" items="[[items]]" selected-items="{{selectedItems}}" multi-selection selection-enabled>
       <template>
+        <div class="group-header" hidden$="[[!item.hasHeader]]">[[item.header]]</div>
         <div class$="[[_computeRowClass(selected)]]" tabindex$="[[tabIndex]]" aria-label$="Select/Deselect [[item.url]]">
           <div class="checkbox-column">
             <paper-checkbox checked="{{selected}}"></paper-checkbox>
