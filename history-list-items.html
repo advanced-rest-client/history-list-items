@@ -236,7 +236,8 @@ You can style checkbox with paper-checkbox styles like:
       hasSelection: {
         type: Boolean,
         value: false,
-        computed: '_computeHasSelection(selectedItems.length)'
+        computed: '_computeHasSelection(selectedItems.length)',
+        notify: true
       },
       /**
        * If set meanins that the input data has grouping.
