@@ -247,7 +247,7 @@ You can style checkbox with paper-checkbox styles like:
     },
 
     _computeHistoryTime: function(timestamp) {
-      var d = new Date();
+      var d = new Date(Number(timestamp));
       var options = {
         year: 'numeric',
         month: 'numeric',
