@@ -35,6 +35,7 @@ paths each time the new element will be added.
 
 Custom property | Description | Default
 ----------------|-------------|----------
+`--history-list-items-element` | Mixin to be applied to the element itself | `{}`
 `--history-list-items` | Mixin applied to each list item | `{}`
 `--history-list-items-url` | Mixin applied to the URL display element. Note that it is a inline element. | `{}`
 `--history-list-items-method` | Mixin applied to the method display element. Note that it is a inline element. | `{}`
