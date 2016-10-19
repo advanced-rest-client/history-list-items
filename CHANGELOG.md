@@ -1,3 +1,13 @@
+<a name="1.0.7"></a>
+## [1.0.7](https://github.com/advanced-rest-client/history-list-items/compare/1.0.3...v1.0.7) (2016-10-19)
+
+
+### Fix
+
+* url field overflow ([1468268ff7128c2956fd3df083488254c070e1b3](https://github.com/advanced-rest-client/history-list-items/commit/1468268ff7128c2956fd3df083488254c070e1b3))
+
+
+
 <a name="1.0.6"></a>
 ## [1.0.6](https://github.com/advanced-rest-client/history-list-items/compare/1.0.3...v1.0.6) (2016-10-19)
 
