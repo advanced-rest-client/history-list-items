@@ -73,8 +73,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="vertical-section-container centered">
       <h3>The `history-list`</h3>
       <section card>
-        <h4>Regular list</h4>
-        <history-list-items id="history" items="[[list]]" on-history-list-threshold="_loadNext"></history-list-items>
+        <h4>Selected items: [[selectedItems.length]]</h4>
+        <history-list-items
+          id="history"
+          items="[[list]]"
+          on-history-list-threshold="_loadNext"
+          selected-items="{{selectedItems}}"
+          on-history-list-item-selection-changed="_selChanged"
+          on-history-list-item-open="_onOpen"
+          on-history-list-item-delete="_onDelete"></history-list-items>
+      </section>
+      <section card>
+        <h4>Logs:</h4>
+        <output id="output"></output>
       </section>
     </div>
   </template>
@@ -83,13 +94,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     'use strict';
     app.list = [];
     /* global chance */
-    app._loadNext = () => {
+    app._loadNext = (e) => {
       if (!app.$ || !app.$.history) {
         return;
       }
       var data = app.getRequestData(100, true);
       data = app.processResults(data);
       app.$.history.addItems(data);
+      let msg = 'Lower threshold reached.';
+      app.log(msg);
     };
     app.generateHistoryItem = (isHistory) => {
       var isPayload = chance.bool();
@@ -184,6 +197,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return d.getTime();
     };
     app._loadNext();
+
+    app._selChanged = (e) => {
+      let msg = 'Toggle item #' + e.detail.index;
+      msg += ` (${e.detail.item.method} ${e.detail.item.url})`;
+      msg += ': Is now ' + (e.detail.selected ? 'selected' : 'not selected');
+      app.log(msg);
+      console.log(e);
+    };
+    app._onOpen = (e) => {
+      let msg = 'Open item #' + e.detail.index;
+      msg += ` (${e.detail.item.method} ${e.detail.item.url})`;
+      app.log(msg);
+      console.log(e);
+    };
+    app._onDelete = (e) => {
+      let msg = 'Delete item #' + e.detail.index;
+      msg += ` (${e.detail.item.method} ${e.detail.item.url})`;
+      app.log(msg);
+      console.log(e);
+    };
+    app.log = (message) => {
+      app.$.output.innerText += message + '\n';
+    };
   })(document.querySelector('#app'));
   </script>
 </body>
