@@ -288,6 +288,9 @@ You can style checkbox with paper-checkbox styles like:
     },
 
     _computeHistoryTime: function(timestamp) {
+      if (!timestamp) {
+        return '';
+      }
       var d = new Date(Number(timestamp));
       var options = {
         // year: 'numeric',
@@ -297,7 +300,12 @@ You can style checkbox with paper-checkbox styles like:
         minute: 'numeric',
         // second: 'numeric'
       };
-      return new Intl.DateTimeFormat(undefined, options).format(d);
+      try {
+        return new Intl.DateTimeFormat(undefined, options).format(d);
+      } catch (e) {
+        console.warn(e);
+        return '';
+      }
     },
 
     _computeRowClass: function(selected) {
