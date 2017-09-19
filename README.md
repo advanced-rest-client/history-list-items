@@ -1,34 +1,35 @@
+[![Build Status](https://travis-ci.org/advanced-rest-client/history-list-items.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/history-list-items)  
+
+# history-list-items
 
 A `<history-list-items>` element renders a list of fistory items.
 
-It should be used in a ARC requests history list view.
+## Data model
+
+Each history item requires following properties:
+
+-   `hasHeader` (Boolean) If true it renders section header for a history items (with the date). If set, `header` property is required
+-   `header` (String) Required if `hasHeader` property is set. Label of the header (the date)
+-   `method` (String) HTTP method of the request
+-   `url` (String) The URL of the request
+-   `updated` (Number) Timestamp of request update
 
 ## Example
+
 ```
 <history-list id="history" items="[[list]]"></history-list>
 ```
-The `list` attribute is a list of requests to display.
-The `list` will not change from the inside of the element and every state
-change is informed via events.
 
-It is safe to load a lot of results into the list. This element uses
-the `iron-list` element that renders only a potion of items  to fit
-available space.
+## List handing
+
+The element uses `<iron-list>` element that creates a virtual list containing
+limited number of child elements. It allows to load huge number of requests
+without influencing the performance.
 
 ## Adding pagination
-Simplest solution is just to override the `items` array with new values.
-It will cause list reset though and it will jump to fisrt element.
-To avoid it you can use element's `addItems` function.
-However the element will not notify back change in the list so other elements
-or app will not notice element's array change.
 
-To avoid this update the array of items as follows:
-```
-const newItems = new Array(100);
-newItems.forEach((i) => this.push('existingItems', i));
-```
-It will push new elements - one by one - to the end of the array and notify
-paths each time the new element will be added.
+Simplest solution is to override the `items` array with new values.
+It causes list reset and the list jumps to the fisrt element. To avoid this behavior use element's `addItems` function.
 
 ### Styling
 `<history-list-items>` provides the following custom properties and mixins for styling:
@@ -47,13 +48,6 @@ Custom property | Description | Default
 `--history-list-items-open-background-color` | Background color of the "open" button. | `#1E88E5`
 `--history-list-items-open-color` | Font color of the "open" button. | `white`
 
-You can style checkbox with paper-checkbox styles like:
-```
-:host {
-  --paper-checkbox-checked-color: #1E88E5;
-}
-```
-
 
 
 ### Events
@@ -65,5 +59,5 @@ index **Number** - Object's index in the list. |
 index **Number** - Object's index in the list. |
 | history-list-item-selection-changed | Fired when the selection of an item changed. | item **Object** - An object associated with this item. |
 index **Number** - Object's index in the list. |
-selected **Boolean** - True if the item is currently being selected. This mey not yet be reflected in other object states since this event is fired while selection is happening. |
+selected **Boolean** - True if the item is currently selected. This mey not yet be reflected in other object states since this event is fired while selection is happening. |
 | history-list-threshold | Fired when the user nearly scrolled to the ened of the list. It usually means that the app should load more results. | __none__ |

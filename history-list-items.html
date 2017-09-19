@@ -18,37 +18,38 @@ the License.
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../paper-styles/typography.html">
 <link rel="import" href="../iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../date-time/date-time.html">
+<link rel="import" href="../http-method-label/http-method-label.html">
+
 <!--
 A `<history-list-items>` element renders a list of fistory items.
 
-It should be used in a ARC requests history list view.
+## Data model
+
+Each history item requires following properties:
+
+-   `hasHeader` (Boolean) If true it renders section header for a history items (with the date). If set, `header` property is required
+-   `header` (String) Required if `hasHeader` property is set. Label of the header (the date)
+-   `method` (String) HTTP method of the request
+-   `url` (String) The URL of the request
+-   `updated` (Number) Timestamp of request update
 
 ## Example
+
 ```
 <history-list id="history" items="[[list]]"></history-list>
 ```
-The `list` attribute is a list of requests to display.
-The `list` will not change from the inside of the element and every state
-change is informed via events.
 
-It is safe to load a lot of results into the list. This element uses
-the `iron-list` element that renders only a potion of items  to fit
-available space.
+## List handing
+
+The element uses `<iron-list>` element that creates a virtual list containing
+limited number of child elements. It allows to load huge number of requests
+without influencing the performance.
 
 ## Adding pagination
-Simplest solution is just to override the `items` array with new values.
-It will cause list reset though and it will jump to fisrt element.
-To avoid it you can use element's `addItems` function.
-However the element will not notify back change in the list so other elements
-or app will not notice element's array change.
 
-To avoid this update the array of items as follows:
-```
-const newItems = new Array(100);
-newItems.forEach((i) => this.push('existingItems', i));
-```
-It will push new elements - one by one - to the end of the array and notify
-paths each time the new element will be added.
+Simplest solution is to override the `items` array with new values.
+It causes list reset and the list jumps to the fisrt element. To avoid this behavior use element's `addItems` function.
 
 ### Styling
 `<history-list-items>` provides the following custom properties and mixins for styling:
@@ -67,13 +68,6 @@ Custom property | Description | Default
 `--history-list-items-open-background-color` | Background color of the "open" button. | `#1E88E5`
 `--history-list-items-open-color` | Font color of the "open" button. | `white`
 
-You can style checkbox with paper-checkbox styles like:
-```
-:host {
-  --paper-checkbox-checked-color: #1E88E5;
-}
-```
-
 @group UI Elements
 @element history-list-items
 @demo demo/index.html
@@ -86,18 +80,17 @@ You can style checkbox with paper-checkbox styles like:
       height: 100vh;
       display: flex;
       flex-direction: column;
-      /*--paper-checkbox-checked-color: #1E88E5;*/
-      @apply(--history-list-items-element);
+      @apply --history-list-items-element;
     }
 
     .history-item {
-      @apply(--layout-horizontal);
-      @apply(--layout-center);
-      @apply(--paper-font-body1);
+      @apply --layout-horizontal;
+      @apply --layout-center;
+      @apply --arc-font-body1;
       font-size: 14px;
       height: var(--history-list-items-height, 60px);
       background-color: var(--history-list-items-background-color, transparent);
-      @apply(--history-list-items);
+      @apply --history-list-items;
     }
 
     .history-item.selected {
@@ -105,31 +98,30 @@ You can style checkbox with paper-checkbox styles like:
     }
 
     .checkbox-column {
-      @apply(--layout);
-      @apply(--layout-center-center);
+      @apply --layout;
+      @apply --layout-center-center;
       height: 48px;
       width: 48px;
     }
 
     .data-column {
-      @apply(--layout-vertical);
-      @apply(--layout-flex);
+      @apply --layout-vertical;
+      @apply --layout-flex;
       min-width: 0;
     }
 
     .url-method-row {
-      @apply(--layout-horizontal);
+      @apply --layout-horizontal;
     }
 
-    .method {
+    http-method-label {
       margin-right: 8px;
-      @apply(--history-list-items-method);
     }
 
     .url {
-      @apply(--layout-flex);
-      @apply(--paper-font-common-nowrap);
-      @apply(--history-list-items-url);
+      @apply --layout-flex;
+      @apply --paper-font-common-nowrap;
+      @apply --history-list-items-url;
     }
 
     .meta-row {
@@ -138,7 +130,7 @@ You can style checkbox with paper-checkbox styles like:
     }
 
     .action-column {
-      @apply(--layout-horizontal);
+      @apply --layout-horizontal;
     }
 
     .open-action {
@@ -161,23 +153,25 @@ You can style checkbox with paper-checkbox styles like:
     <iron-list id="list" items="[[items]]" selected-items="{{selectedItems}}" multi-selection selection-enabled>
       <template>
         <div>
-          <div class="group-header" hidden$="[[!item.hasHeader]]">[[item.header]]</div>
-          <div class$="[[_computeRowClass(selected)]]" tabindex$="[[tabIndex]]" aria-label$="Select/Deselect [[item.url]]">
+          <template is="dom-if" if="[[item.hasHeader]]">
+            <div class="group-header">[[item.header]]</div>
+          </template>
+          <div class$="history-item [[_computeRowClass(selected)]]" tabindex$="[[tabIndex]]" aria-label$="Select/Deselect [[item.url]]">
             <div class="checkbox-column">
-              <paper-checkbox on-tap="_toggleCheckbox" checked="[[selected]]"></paper-checkbox>
+              <paper-checkbox data-action="select-item" on-tap="_toggleCheckbox" checked="[[selected]]"></paper-checkbox>
             </div>
             <div class="data-column">
               <div class="url-method-row">
-                <span class="method">{{item.method}}</span>
-                <span class="url">{{item.url}}</span>
+                <http-method-label method="[[item.method]]"></http-method-label>
+                <span class="url">[[item.url]]</span>
               </div>
               <div class="meta-row">
-                <span class="time">[[_computeHistoryTime(item.updated)]]</span>
+                <span class="time"><date-time date="[[item.updated]]" hour="numeric" minute="numeric"></date-time></span>
               </div>
             </div>
             <div class="action-column">
-              <paper-button on-tap="_deleteItem">delete</paper-button>
-              <paper-button class="open-action" on-tap="_navigateItem">open</paper-button>
+              <paper-button data-action="delete-item" on-tap="_deleteItem">delete</paper-button>
+              <paper-button data-action="open-item" class="open-action" on-tap="_navigateItem">open</paper-button>
             </div>
           </div>
         </div>
@@ -215,18 +209,13 @@ You can style checkbox with paper-checkbox styles like:
      * @event history-list-item-selection-changed
      * @param {Object} item An object associated with this item.
      * @param {Number} index Object's index in the list.
-     * @param {Boolean} selected True if the item is currently being selected.
+     * @param {Boolean} selected True if the item is currently selected.
      * This mey not yet be reflected in other object states since this event
      * is fired while selection is happening.
      */
     properties: {
       // The list of history items to render.
-      items: {
-        type: Array,
-        value: function() {
-          return [];
-        }
-      },
+      items: Array,
       // List of selected items on the list.
       selectedItems: {
         type: Array,
@@ -250,23 +239,13 @@ You can style checkbox with paper-checkbox styles like:
         value: false,
         computed: '_computeHasSelection(selectedItems.length)',
         notify: true
-      },
-      /**
-       * If set meanins that the input data has grouping.
-       * Each group will display a header and date will be limited to time only.
-       * Header should display date for the group.
-       *
-       * Group item (first item of the group) should have `hasHeader` property set to `true`
-       * and `header` property as a header label.
-       */
-      hasGrouping: {
-        type: Boolean
       }
     },
 
     observers: [
       '_sizeChanged(items.length)'
     ],
+
     listeners: {
       'iron-select': '_onSelectItem',
       'iron-deselect': '_onSelectItem',
@@ -274,6 +253,7 @@ You can style checkbox with paper-checkbox styles like:
       'iron-changed': '_onSelectItem',
       'iron-change': '_onSelectItem'
     },
+
     hostAttributes: {
       'role': 'list'
     },
@@ -286,57 +266,33 @@ You can style checkbox with paper-checkbox styles like:
         }, 2);
       }
     },
-
-    _computeHistoryTime: function(timestamp) {
-      if (!timestamp) {
-        return '';
-      }
-      var d = new Date(Number(timestamp));
-      var options = {
-        // year: 'numeric',
-        // month: 'numeric',
-        // day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        // second: 'numeric'
-      };
-      try {
-        return new Intl.DateTimeFormat(undefined, options).format(d);
-      } catch (e) {
-        console.warn(e);
-        return '';
-      }
-    },
-
+    // Computes selection class name for a row of the table.
     _computeRowClass: function(selected) {
-      var clazz = 'history-item';
-      if (selected) {
-        clazz += ' selected';
-      }
-      return clazz;
+      return selected ? 'selected' : '';
     },
-
+    // Fires `history-list-item-delete` event for click event
     _deleteItem: function(e) {
       this.fire('history-list-item-delete', {
         item: e.model.get('item'),
         index: e.model.get('index')
       });
     },
-
+    // Fires `history-list-item-open` for click item.
     _navigateItem: function(e) {
       this.fire('history-list-item-open', {
         item: e.model.get('item'),
         index: e.model.get('index')
       });
     },
-
+    // Fires `history-list-threshold` when list treshold has been reached
     _thresholdReached: function() {
       this.fire('history-list-threshold');
     },
-
+    // Computes value of the `hasSelection` property
     _computeHasSelection: function(length) {
       return !!length;
     },
+    // Toggles selection state of a checkbox
     _toggleCheckbox: function(e) {
       this.$.list.toggleSelectionForItem(e.model.index);
     },
@@ -350,7 +306,7 @@ You can style checkbox with paper-checkbox styles like:
       if (!items || !items.length) {
         return;
       }
-      items.forEach((i) => this.push('items', i));
+      items.forEach(item => this.push('items', item));
     },
 
     _onSelectItem: function(e) {
@@ -359,7 +315,7 @@ You can style checkbox with paper-checkbox styles like:
       this.fire('history-list-item-selection-changed', {
         item: model.get('item'),
         index: model.get('index'),
-        selected: this.selectedItems.indexOf(model.get('item')) === -1
+        selected: !model.get('selected')
       });
     }
   });

@@ -17,8 +17,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="../../web-component-tester/browser.js"></script>
     <script src="../../iron-test-helpers/test-helpers.js"></script>
     <script src="../../iron-test-helpers/mock-interactions.js"></script>
-
-    <!-- Step 1: import the element to test -->
+    <script src="data-generator.js"></script>
+    <script src="../../chance/dist/chance.min.js"></script>
     <link rel="import" href="../history-list-items.html">
   </head>
   <body>
@@ -30,11 +30,79 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </test-fixture>
 
     <script>
-    /* global suite, test, fixture, assert */
+    /* global fixture, assert, DataGenerator, TestHelpers, MockInteractions */
     suite('basic', function() {
-      test('`history-list-items` should be initialized', function() {
-        var element = fixture('basic');
-        assert.equal(element.isAttached, true, 'element.isAttached equals true');
+      var element;
+      setup(function() {
+        element = fixture('basic');
+        var data = DataGenerator.generateRequests(100);
+        data = DataGenerator.processResults(data);
+        element.items = data;
+        TestHelpers.forceXIfStamp(element);
+      });
+
+      test('hasSelection is computed', function() {
+        assert.isFalse(element.hasSelection);
+      });
+
+      test('Header is rendered', function() {
+        // data generator adds header to first element
+        // Note: this test doesn't make sense in shadow DOM but it will work
+        // in shagy DOM.
+        var node = element.$$('#list div'); // selects first DIV element on the list
+        var header = node.querySelector('.group-header');
+        assert.ok(header);
+      });
+
+      function actionElement(action) {
+        return Polymer.dom(element.root)
+        .querySelector('[data-action="' + action + '"]');
+      }
+
+      test('Selects an item', function() {
+        var node = actionElement('select-item');
+        MockInteractions.tap(node);
+        setTimeout(function() {
+          assert.typeOf(element.selectedItems, 'array', 'selectedItems is an array');
+          assert.lengthOf(element.selectedItems, 1, 'selectedItems has one selected item');
+        }, 100);
+      });
+
+      test('Fires history-list-item-delete custom event', function() {
+        var eventData;
+        element.addEventListener('history-list-item-delete', function(e) {
+          eventData = e.detail;
+        });
+        var node = actionElement('delete-item');
+        MockInteractions.tap(node);
+        assert.typeOf(eventData, 'object');
+        assert.typeOf(eventData.item, 'object');
+        assert.typeOf(eventData.index, 'number');
+      });
+
+      test('Fires history-list-item-open custom event', function() {
+        var eventData;
+        element.addEventListener('history-list-item-open', function(e) {
+          eventData = e.detail;
+        });
+        var node = actionElement('open-item');
+        MockInteractions.tap(node);
+        assert.typeOf(eventData, 'object');
+        assert.typeOf(eventData.item, 'object');
+        assert.typeOf(eventData.index, 'number');
+      });
+
+      test('Fires history-list-item-selection-changed custom event', function() {
+        var eventData;
+        element.addEventListener('history-list-item-selection-changed', function(e) {
+          eventData = e.detail;
+        });
+        var node = actionElement('select-item');
+        MockInteractions.tap(node);
+        assert.typeOf(eventData, 'object');
+        assert.typeOf(eventData.item, 'object');
+        assert.typeOf(eventData.index, 'number');
+        assert.isTrue(eventData.selected, 'Item is selected');
       });
     });
     </script>
