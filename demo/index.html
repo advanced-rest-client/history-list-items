@@ -17,6 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <title>history-list-items demo</title>
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../chance/dist/chance.min.js"></script>
+  <script src="../test/data-generator.js"></script>
   <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
   <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
   <link rel="import" href="../../paper-styles/paper-styles.html">
@@ -73,7 +74,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="vertical-section-container centered">
       <h3>The `history-list`</h3>
       <section card>
-        <h4>Selected items: [[selectedItems.length]]</h4>
         <history-list-items
           id="history"
           items="[[list]]"
@@ -84,6 +84,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           on-history-list-item-delete="_onDelete"></history-list-items>
       </section>
       <section card>
+        <h4>Selected items: [[selectedItems.length]]</h4>
         <h4>Logs:</h4>
         <output id="output"></output>
       </section>
@@ -93,111 +94,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   (function(app) {
     'use strict';
     app.list = [];
-    /* global chance */
-    app._loadNext = (e) => {
+    /* global DataGenerator */
+    app._loadNext = () => {
       if (!app.$ || !app.$.history) {
         return;
       }
-      var data = app.getRequestData(100, true);
-      data = app.processResults(data);
+      var data = DataGenerator.generateRequests(100);
+      data = DataGenerator.processResults(data);
       app.$.history.addItems(data);
       let msg = 'Lower threshold reached.';
       app.log(msg);
     };
-    app.generateHistoryItem = (isHistory) => {
-      var isPayload = chance.bool();
-      var payloadMethods = ['POST', 'PUT', 'DELETE', 'OPTIONS'];
-      var otherMethods = ['GET', 'HEAD'];
-      var headersSize = chance.integer({
-        min: 0,
-        max: 10
-      });
-      var headers = '';
-      for (var i = 0; i < headersSize; i++) {
-        headers += 'X-' + chance.word() + ': ' + chance.word() + '\n';
-      }
-      if (isPayload) {
-        headers += 'content-type: application/x-www-form-urlencoded';
-      }
-      var payload = isPayload ? chance.paragraph() : '';
-      var requestName = isHistory ? null : chance.sentence({
-        words: 2
-      });
-      var d = new Date();
-      var randomDay = chance.date({year: d.getFullYear(), 'month': d.getMonth()});
-      var t = randomDay.getTime();
-      var today = app.getDayToday(t);
-      var item = {
-        'url': chance.url(),
-        'method': chance.pick(isPayload ? payloadMethods : otherMethods),
-        'headers': headers,
-        'payload': payload,
-        'created': t,
-        'updated': t
-      };
-      item._id = encodeURIComponent(item.url) + '/' + item.method + '/' + today;
-      if (!isHistory) {
-        item.name = requestName;
-      }
 
-      return item;
-    };
-    app.getRequestData = (dataSize, isHistory) => {
-      var list = [];
-      for (var i = 0; i < dataSize; i++) {
-        list.push(app.generateHistoryItem(isHistory));
-      }
-      return list;
-    };
-    app.processResults = function(res) {
-      // sort by updated
-      res.sort((a, b) => {
-        if (a.updated < b.updated) {
-          return 1;
-        }
-        if (a.updated > b.updated) {
-          return -1;
-        }
-        return 0;
-      });
-      var days = [];
-      res = res.map((item) => {
-        let d = app.computeHistoryTime(item._id.split('/')[2]);
-        if (days.indexOf(d) === -1) {
-          days[days.length] = d;
-          item.hasHeader = true;
-          item.header = d;
-        }
-        return item;
-      });
-      return res;
-    };
-
-    app.computeHistoryTime = function(date) {
-      var d = new Date(Number(date));
-      var options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      };
-      return new Intl.DateTimeFormat(undefined, options).format(d);
-    };
-
-    app.getDayToday = function(timestamp) {
-      var d = new Date(timestamp);
-      var tCheck = d.getTime();
-      if (tCheck !== tCheck) {
-        throw new Error('Invalid timestamp: ' + timestamp);
-      }
-      d.setMilliseconds(0);
-      d.setSeconds(0);
-      d.setMinutes(0);
-      d.setHours(0);
-      return d.getTime();
-    };
     app._loadNext();
-
     app._selChanged = (e) => {
       let msg = 'Toggle item #' + e.detail.index;
       msg += ` (${e.detail.item.method} ${e.detail.item.url})`;
