@@ -20,7 +20,7 @@ Each history item requires following properties:
 <history-list id="history" items="[[list]]"></history-list>
 ```
 
-## List handing
+## List handling
 
 The element uses `<iron-list>` element that creates a virtual list containing
 limited number of child elements. It allows to load huge number of requests
@@ -36,28 +36,34 @@ It causes list reset and the list jumps to the fisrt element. To avoid this beha
 
 Custom property | Description | Default
 ----------------|-------------|----------
-`--history-list-items-element` | Mixin to be applied to the element itself | `{}`
 `--history-list-items` | Mixin applied to each list item | `{}`
-`--history-list-items-url` | Mixin applied to the URL display element. Note that it is a inline element. | `{}`
-`--history-list-items-method` | Mixin applied to the method display element. Note that it is a inline element. | `{}`
-`--history-list-items-height` | Height of the list item. | `60px`
-`--history-list-items-background-color` | Background color of the list. | `transparent`
-`--history-list-items-selected-background-color` | Selection color for list items. | `#E0E0E0`
-`--history-list-items-meta-row-color` | Font color of the bottom "meta" row (the one with time information.) | `#757575`
-`--history-list-items-meta-row-font-size` | Font size of the bottom "meta" row (the one with time information.) | `12px`
-`--history-list-items-open-background-color` | Background color of the "open" button. | `#1E88E5`
-`--history-list-items-open-color` | Font color of the "open" button. | `white`
+`--history-list-items-url-label` | Mixin applied to the URL label element | `{}`
+`--history-list-items-name-label` | Mixin applied to the request name label element | `{}`
+`--history-list-items-method-label` | Mixin applied to the method label element. | `{}`
+`--history-list-items-method-label-container` | Mixin applied to the method label parent container element. | `{}`
+`--history-list-item` | Mixin applied to the list item | `{}`
+`--history-list-item-selected` | Mixin applied to the selected list item | `{}`
+`--history-list-item-selected-background-color` | Selection color for list items. | `#E0E0E0`
+`--history-list-items-selection-counter` | Mixin applied to the selection counter | `{}`
+`--history-list-items-search-input` | Mixin applied to the search input | `{}`
+`--history-list-items-header` | Mixin applied to the list header options section. | `{}`
+`--history-list-items-list` | Mixin applied to the list (`iron-list`) | `{}`
+`--action-button` | Mixin apllied to the primary action buttons | `{}`
+`--secondary-action-button-color` | Color of the secondary action button | `--primary-color`
+`--arc-font-body1` | Mixin applied to the element | `{}`
 
 
 
 ### Events
 | Name | Description | Params |
 | --- | --- | --- |
-| history-list-item-delete | Fired when the user clicked on a delete button on an item. | item **Object** - An object associated with this item. |
+| list-item-details | Fired when the "request details" has been requested via this UI. | item **Object** - An object associated with this item. |
+| list-item-open | Fired when the user clicked on an open button on an item. | item **Object** - An object associated with this item. |
 index **Number** - Object's index in the list. |
-| history-list-item-open | Fired when the user clicked on an open button on an item. | item **Object** - An object associated with this item. |
-index **Number** - Object's index in the list. |
-| history-list-item-selection-changed | Fired when the selection of an item changed. | item **Object** - An object associated with this item. |
-index **Number** - Object's index in the list. |
-selected **Boolean** - True if the item is currently selected. This mey not yet be reflected in other object states since this event is fired while selection is happening. |
-| history-list-threshold | Fired when the user nearly scrolled to the ened of the list. It usually means that the app should load more results. | __none__ |
+| list-items-delete | Fired when the user clicked on a delete button on an item. | items **Array** - List of items to be deleted. Each item is a request object as passed to the `items` array. |
+| list-items-export | Fires when the user selects to export currently selected items.  The event does not bubbles. | items **Array** - List of items to be deleted. Each item is a request object as passed to the `items` array. |
+| list-items-search | Fired when the user search the list.  The event does not bubbles. | q **String** - Search query. Can be empty when cleared. |
+| list-items-selection-changed | Fired when single item selection has changed. It isn't fired when multiple selection has changed at once.  The event does not bubbles. | item **Object** - The request object |
+index **Number** - Index of the item on the list |
+selected **Boolean** - Whether the item is selected or not. |
+| list-items-threshold | Fired when the user nearly scrolled to the ened of the list. It usually means that the app should load more results.  The event does not bubbles. | __none__ |

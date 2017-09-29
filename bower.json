@@ -1,7 +1,7 @@
 {
   "name": "history-list-items",
   "description": "The ARC's history list view",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "authors": [
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
