@@ -1,3 +1,13 @@
+<a name="0.1.1"></a>
+## [0.1.1](https://github.com/advanced-rest-client/history-list-items/compare/1.0.9...0.1.1) (2017-09-29)
+
+
+### Breaking
+
+* Redesign of the element and rolling back to unsable release version ([ef7ab4537d967ba2bbcaff2916a0a0bf63294119](https://github.com/advanced-rest-client/history-list-items/commit/ef7ab4537d967ba2bbcaff2916a0a0bf63294119))
+
+
+
 <a name="1.0.9"></a>
 ## [1.0.9](https://github.com/advanced-rest-client/history-list-items/compare/1.0.3...1.0.9) (2017-09-19)
 
