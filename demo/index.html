@@ -16,14 +16,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
   <title>history-list-items demo</title>
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-  <script src="../../chance/dist/chance.min.js"></script>
-  <script src="../test/data-generator.js"></script>
   <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
   <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
-  <link rel="import" href="../../paper-styles/paper-styles.html">
-  <link rel="import" href="../../iron-pages/iron-pages.html">
-  <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
-  <link rel="import" href="../../paper-button/paper-button.html">
+  <link rel="import" href="../../paper-styles/typography.html">
+  <link rel="import" href="../../paper-styles/shadow.html">
+  <link rel="import" href="../../arc-demo-helpers/data-generator.html">
   <link rel="import" href="../history-list-items.html">
   <style is="custom-style" include="demo-pages-shared-styles">
    :host {
@@ -33,26 +30,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   }
 
   .vertical-section-container {
-    max-width: 800px;
+    max-width: 1200px;
   }
 
-  h3 {
-    @aqpply(--paper-font-title);
-  }
-
-  h4 {
-    @apply(--paper-font-caption);
-    color: rgba(0, 0, 0, 0.54);
-  }
-
-  paper-button[raised] {
-    background-color: var(--primary-color);
-    color: var(--light-primary-color);
-  }
-
-  paper-button[disabled] {
-    background: #eaeaea;
-    color: var(--disabled-text-color);
+  :root {
+    --primary-color: #00A2DF;
+    --accent-color: #FF8A65;
+    --action-button: {
+      background-color: var(--primary-color);
+      color: #fff;
+    };
+    --empty-info: {
+      color: rgba(0, 0, 0, 0.74);
+      font-size: 16px;
+    };
+    --arc-font-headline: {
+      @apply --paper-font-headline;
+    };
+    --arc-font-subhead: {
+      @apply --paper-font-subhead;
+    };
+    --arc-font-body1: {
+      @apply --paper-font-body1;
+    };
+    --arc-font-title: {
+      @apply --paper-font-title;
+    }
+    --paper-progress-active-color: var(--primary-color);
   }
 
   section[card] {
@@ -60,11 +64,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     padding: 20px;
     background: white;
     margin-bottom: 40px;
-    height: 500px;
   }
 
   history-list-items {
-    height: calc(100% - 60px);
+    background-color: #fff;
+    height: calc(100vh - 360px);
   }
   </style>
 </head>
@@ -72,16 +76,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <body unresolved>
   <template is="dom-bind" id="app">
     <div class="vertical-section-container centered">
-      <h3>The `history-list`</h3>
       <section card>
         <history-list-items
           id="history"
-          items="[[list]]"
-          on-history-list-threshold="_loadNext"
-          selected-items="{{selectedItems}}"
-          on-history-list-item-selection-changed="_selChanged"
-          on-history-list-item-open="_onOpen"
-          on-history-list-item-delete="_onDelete"></history-list-items>
+          items="[[items]]"
+          on-list-items-threshold="_loadNext"
+          on-list-items-delete="_onDelete"
+          on-list-item-open="_onOpen"
+          on-list-item-name-changed="_nameChanged"
+          on-list-items-export="_onExport"
+          on-list-items-search="_onSearch"
+          on-list-items-selection-changed="_selChanged"
+          on-list-item-details="_onDetails"></history-list-items>
       </section>
       <section card>
         <h4>Selected items: [[selectedItems.length]]</h4>
@@ -91,22 +97,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
   </template>
   <script>
+  /* global DataGenerator */
   (function(app) {
     'use strict';
-    app.list = [];
-    /* global DataGenerator */
     app._loadNext = () => {
-      if (!app.$ || !app.$.history) {
-        return;
-      }
-      var data = DataGenerator.generateRequests(100);
-      data = DataGenerator.processResults(data);
+      var data = DataGenerator.generateHistoryRequestsData({
+        requestsSize: 50
+      });
       app.$.history.addItems(data);
       let msg = 'Lower threshold reached.';
       app.log(msg);
     };
-
-    app._loadNext();
     app._selChanged = (e) => {
       let msg = 'Toggle item #' + e.detail.index;
       msg += ` (${e.detail.item.method} ${e.detail.item.url})`;
@@ -120,9 +121,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.log(msg);
       console.log(e);
     };
+    app._onDetails = (e) => {
+      let msg = 'Details requested for ' + e.detail.item.url;
+      app.log(msg);
+      console.log(e);
+    };
     app._onDelete = (e) => {
-      let msg = 'Delete item #' + e.detail.index;
-      msg += ` (${e.detail.item.method} ${e.detail.item.url})`;
+      var items = e.detail.items;
+      var size = items.length;
+      var msg = '';
+      if (size === 1) {
+        msg = 'List item delete requested';
+        msg += ` (${items[0].method} ${items[0].url})`;
+      } else {
+        msg = size + ' list items delete requested';
+      }
+      app.log(msg);
+      console.log(e);
+    };
+    app._nameChanged = (e) => {
+      let msg = 'Change name for item #' + e.detail.index;
+      msg += ` (${e.detail.item.name})`;
+      app.log(msg);
+      console.log(e);
+    };
+    app._onExport = (e) => {
+      var items = e.detail.items;
+      var size = items.length;
+      var msg = '';
+      if (size === 1) {
+        msg = 'List item export requested';
+        msg += ` (${items[0].method} ${items[0].url})`;
+      } else {
+        msg = size + ' list items export requested';
+      }
+      app.log(msg);
+      console.log(e);
+    };
+    app._onSearch = (e) => {
+      let msg = 'List search requested';
+      msg += ` (${e.detail.q})`;
       app.log(msg);
       console.log(e);
     };
