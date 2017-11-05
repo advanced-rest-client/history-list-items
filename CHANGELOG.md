@@ -1,3 +1,13 @@
+<a name="0.1.3"></a>
+## [0.1.3](https://github.com/advanced-rest-client/history-list-items/compare/0.1.2...0.1.3) (2017-11-05)
+
+
+### New
+
+* Added support for Drive events ([0a95017e1defd64363a250ae373b18627c2cda5e](https://github.com/advanced-rest-client/history-list-items/commit/0a95017e1defd64363a250ae373b18627c2cda5e))
+
+
+
 <a name="0.1.2"></a>
 ## [0.1.2](https://github.com/advanced-rest-client/history-list-items/compare/0.1.1...0.1.2) (2017-09-29)
 
