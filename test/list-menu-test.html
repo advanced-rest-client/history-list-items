@@ -1,0 +1,134 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+    <link rel="import" href="../../arc-demo-helpers/data-generator.html">
+    <link rel="import" href="../history-list-items.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <history-list-items></history-list-items>
+      </template>
+    </test-fixture>
+
+    <script>
+    /* global fixture, assert, DataGenerator, TestHelpers, MockInteractions */
+    function addGenerator() {
+      DataGenerator.processHistoryResults = function(res) {
+        // sort by updated
+        res.sort((a, b) => {
+          if (a.updated < b.updated) {
+            return 1;
+          }
+          if (a.updated > b.updated) {
+            return -1;
+          }
+          return 0;
+        });
+        var days = [];
+        res = res.map((item) => {
+          let d = DataGenerator.computeHistoryTime(item._id.split('/')[0]);
+          if (days.indexOf(d) === -1) {
+            days[days.length] = d;
+            item.hasHeader = true;
+            item.header = d;
+          }
+          return item;
+        });
+        return res;
+      };
+
+      DataGenerator.computeHistoryTime = function(date) {
+        var d = new Date(Number(date));
+        var options = {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        };
+        return new Intl.DateTimeFormat(undefined, options).format(d);
+      };
+    }
+
+    suite('List menu', function() {
+      var element;
+      var menu;
+      var menuOptions;
+      suiteSetup(function() {
+        addGenerator();
+      });
+      setup(function() {
+        element = fixture('basic');
+        var data = DataGenerator.generateHistoryRequestsData({
+          requestsSize: 100
+        });
+        data = DataGenerator.processHistoryResults(data);
+        element.items = data;
+        menu = element.$.historyListMenu;
+        menuOptions = element.$.historyListMenuOptions;
+        element.$.list.selectItem(0);
+        TestHelpers.forceXIfStamp(element);
+      });
+
+      function actionElement(action) {
+        return Polymer.dom(element.root)
+        .querySelector('[data-action="' + action + '"]');
+      }
+
+      test('Export to file closes the menu', function(done) {
+        menu.opened = true;
+        var button = actionElement('export-selected-file');
+        MockInteractions.tap(button);
+
+        setTimeout(function() {
+          assert.isFalse(menu.opened);
+          assert.equal(menuOptions.selected, -1);
+          done();
+        }, 50); // next frame
+      });
+
+      test('Export to drive closes the menu', function(done) {
+        menu.opened = true;
+        var button = actionElement('export-selected-drive');
+        MockInteractions.tap(button);
+
+        setTimeout(function() {
+          assert.isFalse(menu.opened);
+          assert.equal(menuOptions.selected, -1);
+          done();
+        }, 50);
+      });
+
+      test('Delete all closes the menu', function(done) {
+        menu.opened = true;
+        var button = actionElement('delete-all');
+        MockInteractions.tap(button);
+
+        setTimeout(function() {
+          assert.isFalse(menu.opened);
+          assert.equal(menuOptions.selected, -1);
+          done();
+        }, 50);
+      });
+    });
+    </script>
+
+  </body>
+</html>
