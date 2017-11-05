@@ -168,12 +168,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
         element.$.list.selectItem(element.items[0]);
         TestHelpers.forceXIfStamp(element);
-        var node = actionElement('export-all');
+        var node = actionElement('export-selected-file');
         MockInteractions.tap(node);
         assert.typeOf(eventData, 'object', 'Event was fired');
         assert.equal(cnt, 1, 'Event called once');
         assert.typeOf(eventData.items, 'array', 'Event contains list of items');
         assert.lengthOf(eventData.items, 1, 'Event contain one item');
+        assert.equal(eventData.destination, 'file', 'Destination is set');
+      });
+
+      test('Fires list-items-export custom event to Drive', function() {
+        var eventData;
+        var cnt = 0;
+        element.addEventListener('list-items-export', function(e) {
+          eventData = e.detail;
+          cnt++;
+        });
+        element.$.list.selectItem(element.items[0]);
+        TestHelpers.forceXIfStamp(element);
+
+        var node = actionElement('export-selected-drive');
+        MockInteractions.tap(node);
+        assert.typeOf(eventData, 'object', 'Event was fired');
+        assert.equal(cnt, 1, 'Event called once');
+        assert.typeOf(eventData.items, 'array', 'Event contains list of items');
+        assert.lengthOf(eventData.items, 1, 'Event contain one item');
+        assert.equal(eventData.destination, 'drive', 'Destination is set');
       });
     });
     </script>
